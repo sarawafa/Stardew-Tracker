@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Junimo Bundle Master Tracker</title>
+    <style>
+        :root {
+            --stardew-brown: #7d5233;
+            --stardew-light-brown: #a1785c;
+            --stardew-border: #5d3a22;
+            --stardew-bg: #f4ece4;
+            --stardew-green: #4da33c;
+            --stardew-gold: #ffcc00;
+        }
+
+        body {
+            background-color: var(--stardew-bg);
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .back-link { align-self: flex-start; text-decoration: none; color: var(--stardew-brown); font-weight: bold; margin-bottom: 20px; }
+
+        /* Room Selection Tabs */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            background: var(--stardew-light-brown);
+            border: 3px solid var(--stardew-border);
+            color: white;
+            cursor: pointer;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .tab-btn.active { background: var(--stardew-green); transform: scale(1.1); }
+
+        /* Room Content Display */
+        .room-section { display: none; width: 100%; max-width: 1000px; }
+        .room-section.active { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+
+        /* Bundle Cards */
+        .bundle-card {
+            background-color: var(--stardew-brown);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            border: 4px solid var(--stardew-border);
+        }
+
+        .bundle-header { border-bottom: 2px solid var(--stardew-light-brown); margin-bottom: 15px; padding-bottom: 10px; text-align: center; }
+
+        .progress-container { background: #4a311f; height: 10px; border-radius: 5px; margin-bottom: 15px; overflow: hidden; }
+        .progress-fill { background: var(--stardew-green); height: 100%; width: 0%; transition: 0.4s; }
+
+        .item-list { display: flex; flex-direction: column; gap: 8px; }
+        .item-row { background: var(--stardew-light-brown); padding: 8px; border-radius: 5px; display: flex; align-items: center; font-size: 0.9rem; }
+
+        input[type="checkbox"] { margin-right: 10px; accent-color: var(--stardew-green); }
+        .item-row:has(input:checked) { opacity: 0.6; text-decoration: line-through; }
+
+        .tag { margin-left: auto; font-size: 0.7rem; background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+<a href="index.html" class="back-link">← Back to Hub</a>
+<h1 style="color: var(--stardew-brown)">Community Center Tracker</h1>
+
+<div class="tabs">
+    <button class="tab-btn active" onclick="showRoom('pantry')">Pantry</button>
+    <button class="tab-btn" onclick="showRoom('fish-tank')">Fish Tank</button>
+    <button class="tab-btn" onclick="showRoom('crafts')">Crafts Room</button>
+</div>
+
+<div id="pantry" class="room-section active">
+    <div class="bundle-card">
+        <div class="bundle-header"><h3>Spring Crops</h3></div>
+        <div class="progress-container"><div class="progress-fill"></div></div>
+        <div class="item-list">
+            <div class="item-row"><input type="checkbox"> Parsnip <span class="tag">Spring</span></div>
+            <div class="item-row"><input type="checkbox"> Green Bean <span class="tag">Spring</span></div>
+            <div class="item-row"><input type="checkbox"> Cauliflower <span class="tag">Spring</span></div>
+            <div class="item-row"><input type="checkbox"> Potato <span class="tag">Spring</span></div>
+        </div>
+    </div>
+    <div class="bundle-card">
+        <div class="bundle-header"><h3>Animal Bundle</h3></div>
+        <div class="progress-container"><div class="progress-fill"></div></div>
+        <div class="item-list">
+            <div class="item-row"><input type="checkbox"> Large Milk <span class="tag">Cows</span></div>
+            <div class="item-row"><input type="checkbox"> Large Egg (Brown) <span class="tag">Chickens</span></div>
+            <div class="item-row"><input type="checkbox"> Large Egg (White) <span class="tag">Chickens</span></div>
+            <div class="item-row"><input type="checkbox"> Large Goat Milk <span class="tag">Goats</span></div>
+            <div class="item-row"><input type="checkbox"> Wool <span class="tag">Sheep/Rabbits</span></div>
+        </div>
+    </div>
+</div>
+
+<div id="fish-tank" class="room-section">
+    <div class="bundle-card">
+        <div class="bundle-header"><h3>River Fish Bundle</h3></div>
+        <div class="progress-container"><div class="progress-fill"></div></div>
+        <div class="item-list">
+            <div class="item-row"><input type="checkbox"> Sunfish <span class="tag">Day/Spring/Sum</span></div>
+            <div class="item-row"><input type="checkbox"> Catfish <span class="tag">Rain/Spr/Fall</span></div>
+            <div class="item-row"><input type="checkbox"> Shad <span class="tag">Rain/Spr/Sum/Fall</span></div>
+            <div class="item-row"><input type="checkbox"> Tiger Trout <span class="tag">Fall/Win</span></div>
+        </div>
+    </div>
+</div>
+
+<div id="crafts" class="room-section">
+    <div class="bundle-card">
+        <div class="bundle-header"><h3>Spring Foraging</h3></div>
+        <div class="progress-container"><div class="progress-fill"></div></div>
+        <div class="item-list">
+            <div class="item-row"><input type="checkbox"> Wild Horseradish <span class="tag">Spring</span></div>
+            <div class="item-row"><input type="checkbox"> Daffodil <span class="tag">Spring</span></div>
+            <div class="item-row"><input type="checkbox"> Leek <span class="tag">Spring</span></div>
+            <div class="item-row"><input type="checkbox"> Dandelion <span class="tag">Spring</span></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Logic to switch between rooms
+    function showRoom(roomId) {
+        document.querySelectorAll('.room-section').forEach(room => room.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+        document.getElementById(roomId).classList.add('active');
+        event.currentTarget.classList.add('active');
+    }
+
+    // Logic to update progress bars
+    function updateAllBars() {
+        document.querySelectorAll('.bundle-card').forEach(card => {
+            const boxes = card.querySelectorAll('input[type="checkbox"]');
+            const checked = card.querySelectorAll('input:checked').length;
+            const fill = card.querySelector('.progress-fill');
+            const percent = (checked / boxes.length) * 100;
+            fill.style.width = percent + '%';
+        });
+    }
+
+    document.addEventListener('change', updateAllBars);
+</script>
+</body>
+</html>

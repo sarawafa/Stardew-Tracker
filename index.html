@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stardew Hub</title>
+    <style>
+        :root {
+            --stardew-brown: #7d5233;
+            --stardew-bg: #f4ece4;
+            --stardew-gold: #ffcc00;
+            --stardew-green: #4da33c;
+        }
+
+        body {
+            background-color: var(--stardew-bg);
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Navigation Bar */
+        nav {
+            background-color: var(--stardew-brown);
+            width: 100%;
+            padding: 15px 0;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+
+        nav a:hover { color: var(--stardew-gold); }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 50px 20px;
+        }
+
+        .hero h1 { color: var(--stardew-brown); font-size: 2.5rem; margin-bottom: 10px; }
+
+        /* Tool Cards Grid */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            width: 90%;
+            max-width: 1000px;
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            border: 4px solid var(--stardew-brown);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            transition: 0.3s;
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--stardew-brown);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            border-color: var(--stardew-green);
+            background-color: #fffdfa;
+        }
+
+        .card-icon { font-size: 3rem; margin-bottom: 15px; display: block; }
+
+        .card h3 { margin: 10px 0; }
+        .card p { margin: 0; font-size: 0.95rem; line-height: 1.4; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="index.html">Home</a>
+    <a href="junimo.html">Bundles</a>
+    <a href="gifts.html">Gifts</a>
+    <a href="planner.html">Planner</a>
+</nav>
+
+<div class="hero">
+    <h1>Farm Management Suite</h1>
+    <p>Everything a modern farmer needs to succeed in Pelican Town.</p>
+</div>
+
+<div class="menu-grid">
+    <a href="junimo.html" class="card">
+        <span class="card-icon">🍏</span>
+        <h3>Junimo Bundles</h3>
+        <p>Track your Community Center items and never miss a seasonal fish again.</p>
+    </a>
+
+    <a href="gifts.html" class="card">
+        <span class="card-icon">🎁</span>
+        <h3>Villager Gift Guide</h3>
+        <p>Database of every villager's favorite items. Build friendships efficiently!</p>
+    </a>
+
+    <a href="planner.html" class="card">
+        <span class="card-icon">📈</span>
+        <h3>Crop Profit Planner</h3>
+        <p>Calculate seed costs vs. harvest profits. Maximize your gold per day.</p>
+    </a>
+</div>
+
+</body>
+</html>
