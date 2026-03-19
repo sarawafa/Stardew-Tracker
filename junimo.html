@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Junimo Master Tracker</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <meta name="referrer" content="no-referrer">
 
     <style>
-        /* CSS Variables for easy theme management and consistency */
         :root {
             --stardew-yellow: #fcf1c5;
             --stardew-brown: #7d5233;
@@ -31,7 +31,6 @@
             font-size: 10px;
         }
 
-        /* The main container boxes using Stardew's UI color palette */
         .stardew-panel {
             background-color: var(--stardew-panel);
             border: 4px solid var(--stardew-dark-brown);
@@ -44,7 +43,6 @@
 
         h1 { color: var(--stardew-yellow); text-shadow: 3px 3px 0 #000; font-size: 18px; text-align: center; margin-bottom: 20px;}
 
-        /* Navigation Tabs Layout */
         .tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 10px; }
 
         .pill, .tab-btn {
@@ -60,7 +58,6 @@
 
         .pill.active, .tab-btn.active { background: var(--stardew-green); color: white; border-color: var(--stardew-yellow); }
 
-        /* Responsive Grid: Changes columns based on screen width */
         #room-container {
             width: 100%;
             max-width: 1200px;
@@ -79,7 +76,6 @@
             border-bottom: 4px solid var(--stardew-gold-border);
         }
 
-        /* Item Row Styling */
         .item-row {
             background: rgba(255, 255, 255, 0.2);
             margin: 5px 0;
@@ -89,38 +85,49 @@
             align-items: center;
             gap: 10px;
             position: relative;
-            cursor: help; /* Changes cursor to a question mark for info */
+            cursor: help;
         }
 
         .item-row:hover { background: rgba(255, 255, 255, 0.4); }
-        .item-row.completed { opacity: 0.5; background: rgba(77, 163, 60, 0.2); }
+        .item-row.completed { opacity: 0.4; background: rgba(77, 163, 60, 0.2); }
 
         .item-icon { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.1); border-radius: 4px; position: relative;}
-        .item-icon img { width: 24px; height: 24px; image-rendering: pixelated; }
 
-        .quality-star { position: absolute; bottom: -2px; right: -2px; width: 14px; height: 14px; }
+        .item-icon img {
+            display: block !important;
+            width: 24px;
+            height: 24px;
+            image-rendering: pixelated;
+        }
 
-        /* TOOLTIP LOGIC: Fixed positioning */
+        .quality-star {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 16px !important;
+            height: 16px !important;
+            z-index: 5;
+        }
+
         .tooltip {
             visibility: hidden;
-            position: fixed; /* Changed to fixed to stay relative to viewport, solving Global scroll issue */
+            position: fixed;
             z-index: 9999;
             background: var(--stardew-yellow);
             border: 3px solid var(--stardew-dark-brown);
             outline: 2px solid var(--stardew-gold-border);
             padding: 12px;
-            width: 220px;
+            width: 240px;
             color: var(--stardew-brown);
             font-size: 7px;
             line-height: 1.6;
             pointer-events: none;
             box-shadow: 0 5px 15px rgba(0,0,0,0.4);
-            transform: translate(-50%, -110%); /* Centers tooltip above the mouse */
+            transform: translate(-50%, -110%);
         }
 
         .item-row:hover .tooltip { visibility: visible; }
 
-        /* Progress Bar Styling */
         .progress-bar { height: 12px; background: var(--stardew-dark-brown); border: 2px solid var(--stardew-gold-border); margin-bottom: 15px; }
         .progress-fill { height: 100%; background: var(--stardew-green); width: 0%; transition: width 0.4s ease-out; }
         .season-tag { font-size: 6px; background: var(--stardew-dark-brown); color: var(--stardew-yellow); padding: 2px 4px; margin-left: auto; }
@@ -149,101 +156,220 @@
 <div id="room-container"></div>
 
 <script>
-    /**
-     * ASSET MANAGEMENT
-     * Logic for retrieving icons from the Wiki using a CORS proxy (weserv.nl).
-     * This ensures images load even when the file is opened locally.
-     */
+
+    //makes sure gold star is added on top of gold quality crops
     function getIcon(name) {
+        if (name === 'gold-star') {
+            return "https://stardewvalleywiki.com/mediawiki/images/thumb/4/47/Gold_Quality_Icon.png/36px-Gold_Quality_Icon.png";
+        }
         const path = iconPaths[name] || "d/d1/Junimo";
         const wikiUrl = `https://stardewvalleywiki.com/mediawiki/images/${path}.png`;
-        return `https://images.weserv.nl/?url=${wikiUrl}`;
+        return `https://images.weserv.nl/?url=${encodeURIComponent(wikiUrl)}&n=1`;
     }
 
-    // Mapping item names to their specific Wiki file paths
+    <!-- copying image paths fron wiki    -->
     const iconPaths = {
-        "Parsnip": "d/d3/Parsnip", "Green Bean": "5/5c/Green_Bean", "Cauliflower": "a/aa/Cauliflower", "Potato": "c/c1/Potato",
+        "Parsnip": "/d/db/Parsnip", "Green Bean": "5/5c/Green_Bean", "Cauliflower": "a/aa/Cauliflower", "Potato": "c/c2/Potato",
         "Tomato": "9/9d/Tomato", "Hot Pepper": "f/f1/Hot_Pepper", "Blueberry": "9/9e/Blueberry", "Melon": "1/19/Melon",
         "Corn": "f/f8/Corn", "Eggplant": "8/8f/Eggplant", "Pumpkin": "6/64/Pumpkin", "Yam": "5/52/Yam",
-        "Large Milk": "6/67/Large_Milk", "L. Brown Egg": "8/81/Large_Egg", "L. White Egg": "5/5d/Large_Egg", "L. Goat Milk": "f/f2/Large_Goat_Milk",
-        "Wool": "3/34/Wool", "Duck Egg": "3/36/Duck_Egg", "Truffle Oil": "3/3d/Truffle_Oil", "Goat Cheese": "c/c8/Goat_Cheese", "Peach": "e/e2/Peach",
-        "Cloth": "5/51/Cloth", "Cheese": "a/a5/Cheese", "Orange": "4/43/Orange", "Honey": "c/c2/Honey", "Apple": "7/7d/Apple", "Cherry": "2/20/Cherry",
-        "Jelly": "0/05/Jelly", "Apricot": "f/fc/Apricot", "Pomegranate": "1/1b/Pomegranate", "Wild Horseradish": "b/b1/Wild_Horseradish",
+        "Large Milk": "6/67/Large_Milk", "L. Brown Egg": "9/91/Large_Brown_Egg", "L. White Egg": "5/5d/Large_Egg", "L. Goat Milk": "f/f2/Large_Goat_Milk",
+        "Wool": "3/34/Wool", "Duck Egg": "3/31/Duck_Egg", "Truffle Oil": "3/3d/Truffle_Oil", "Goat Cheese": "c/c8/Goat_Cheese", "Peach": "e/e2/Peach",
+        "Cloth": "5/51/Cloth", "Cheese": "a/a5/Cheese", "Orange": "4/43/Orange", "Honey": "c/c6/Honey", "Apple": "7/7d/Apple", "Cherry": "2/20/Cherry",
+        "Jelly": "0/05/Jelly", "Apricot": "f/fc/Apricot", "Pomegranate": "1/1b/Pomegranate", "Wild Horseradish": "9/90/Wild_Horseradish",
         "Daffodil": "4/4b/Daffodil", "Leek": "5/57/Leek", "Dandelion": "b/b1/Dandelion", "Grape": "c/c2/Grape", "Spice Berry": "7/74/Spice_Berry",
         "Sweet Pea": "d/d9/Sweet_Pea", "Common Mushroom": "2/2e/Common_Mushroom", "Wild Plum": "3/3b/Wild_Plum", "Hazelnut": "3/31/Hazelnut",
         "Blackberry": "2/25/Blackberry", "Winter Root": "1/11/Winter_Root", "Crystal Fruit": "1/16/Crystal_Fruit", "Snow Yam": "d/d2/Snow_Yam",
         "Crocus": "2/2f/Crocus", "Coconut": "2/2f/Coconut", "Cactus Fruit": "3/32/Cactus_Fruit", "Cave Carrot": "3/34/Cave_Carrot",
-        "Red Mushroom": "d/da/Red_Mushroom", "Maple Syrup": "6/6a/Maple_Syrup", "Oak Resin": "4/40/Oak_Resin", "Pine Tar": "c/ce/Pine_Tar",
-        "Purple Mushroom": "4/4b/Purple_Mushroom", "Morel": "b/b1/Morel", "Wood (99)": "d/df/Wood", "Stone (99)": "d/d4/Stone",
-        "Hardwood (10)": "e/ed/Hardwood", "Sun Fish": "5/56/Sunfish", "Catfish": "9/99/Catfish", "Shad": "e/ef/Shad", "Tiger Trout": "0/01/Tiger_Trout",
+        "Red Mushroom": "e/e1/Red_Mushroom", "Maple Syrup": "6/6a/Maple_Syrup", "Oak Resin": "4/40/Oak_Resin", "Pine Tar": "c/ce/Pine_Tar",
+        "Purple Mushroom": "4/4b/Purple_Mushroom", "Morel": "b/b1/Morel", "Wood": "d/df/Wood", "Stone": "d/d4/Stone",
+        "Hardwood": "e/ed/Hardwood", "Sunfish": "5/56/Sunfish", "Catfish": "9/99/Catfish", "Shad": "e/ef/Shad", "Tiger Trout": "0/01/Tiger_Trout",
         "Carp": "a/a8/Carp", "Largemouth Bass": "1/11/Largemouth_Bass", "Bullhead": "d/db/Bullhead", "Sturgeon": "4/42/Sturgeon",
-        "Sardine": "0/04/Sardine", "Tuna": "c/c5/Tuna", "Red Snapper": "d/d2/Red_Snapper", "Tilapia": "7/73/Tilapia", "Walleye": "0/05/Walleye",
-        "Bream": "d/d3/Bream", "Eel": "9/91/Eel", "Lobster": "9/9f/Lobster", "Crayfish": "5/53/Crayfish", "Crab": "6/66/Crab", "Cockle": "a/ad/Cockle",
+        "Sardine": "0/04/Sardine", "Tuna": "c/c5/Tuna", "Red Snapper": "d/d3/Red_Snapper", "Tilapia": "7/73/Tilapia", "Walleye": "0/05/Walleye",
+        "Bream": "8/82/Bream", "Eel": "9/91/Eel", "Lobster": "9/9f/Lobster", "Crayfish": "5/53/Crayfish", "Crab": "6/63/Crab", "Cockle": "a/ad/Cockle",
         "Mussel": "a/ad/Mussel", "Shrimp": "9/91/Shrimp", "Snail": "d/d2/Snail", "Periwinkle": "1/1d/Periwinkle", "Oyster": "5/54/Oyster", "Clam": "e/ed/Clam",
         "Pufferfish": "b/ba/Pufferfish", "Ghostfish": "7/72/Ghostfish", "Sandfish": "b/bb/Sandfish", "Woodskip": "9/97/Woodskip",
-        "Copper Bar": "f/f0/Copper_Bar", "Iron Bar": "6/6c/Iron_Bar", "Gold Bar": "4/4e/Gold_Bar", "Quartz": "c/cf/Quartz",
-        "Earth Crystal": "7/74/Earth_Crystal", "Frozen Tear": "e/ec/Frozen_Tear", "Fire Quartz": "5/5b/Fire_Quartz", "Slime (99)": "3/38/Slime",
-        "Batwing (10)": "3/3c/Bat_Wing", "Solar Essence": "f/f4/Solar_Essence", "Void Essence": "1/1f/Void_Essence", "Truffle": "f/f2/Truffle", "Poppy": "3/37/Poppy",
-        "Maki Roll": "b/b8/Maki_Roll", "Fried Egg": "1/19/Fried_Egg", "Sea Urchin": "e/e7/Sea_Urchin", "Sunflower": "8/81/Sunflower", "Duck Feather": "f/f9/Duck_Feather",
-        "Aqua Marine": "a/a2/Aquamarine", "Red Cabbage": "2/2d/Red_Cabbage", "Fiddlehead Fern": "b/b0/Fiddlehead_Fern", "Nautilus Shell": "a/a5/Nautilus_Shell",
+        "Copper Bar": "f/f1/Copper_Bar", "Iron Bar": "6/6c/Iron_Bar", "Gold Bar": "4/4e/Gold_Bar", "Quartz": "c/cf/Quartz",
+        "Earth Crystal": "7/74/Earth_Crystal", "Frozen Tear": "e/ec/Frozen_Tear", "Fire Quartz": "5/5b/Fire_Quartz", "Slime": "3/38/Slime",
+        "Batwing": "3/35/Bat_Wing", "Solar Essence": "f/f4/Solar_Essence", "Void Essence": "1/1f/Void_Essence", "Truffle": "f/f2/Truffle", "Poppy": "3/37/Poppy",
+        "Maki Roll": "b/b6/Maki_Roll", "Fried Egg": "1/18/Fried_Egg", "Sea Urchin": "e/e7/Sea_Urchin", "Sunflower": "8/81/Sunflower", "Duck Feather": "f/f9/Duck_Feather",
+        "Aquamarine": "a/a2/Aquamarine", "Red Cabbage": "2/2d/Red_Cabbage", "Fiddlehead Fern": "4/48/Fiddlehead_Fern", "Nautilus Shell": "a/a4/Nautilus_Shell",
         "Chub": "b/bd/Chub", "Frozen Geode": "b/bf/Frozen_Geode", "Wheat": "e/e2/Wheat", "Hay": "a/aa/Hay", "Wine": "6/69/Wine", "Rabbit's Foot": "c/ca/Rabbit%27s_Foot",
         "2,500g": "1/10/Gold", "5,000g": "1/10/Gold", "10,000g": "1/10/Gold", "25,000g": "1/10/Gold"
     };
 
-    /**
-     * DATA MODEL
-     * Organizes all items into Rooms and Bundles for the UI to loop through.
-     */
     const bundleData = {
         "Pantry": {
-            "Spring Crops": { items: [{ name: "Parsnip", season: "Spring", loc: "Grow in Spring" }, { name: "Green Bean", season: "Spring", loc: "Spring Trellis" }, { name: "Cauliflower", season: "Spring", loc: "Grow in Spring" }, { name: "Potato", season: "Spring", loc: "Grow in Spring" }] },
-            "Summer Crops": { items: [{ name: "Tomato", season: "Summer", loc: "Grow in Summer" }, { name: "Hot Pepper", season: "Summer", loc: "Grow in Summer" }, { name: "Blueberry", season: "Summer", loc: "Grow in Summer" }, { name: "Melon", season: "Summer", loc: "Grow in Summer" }] },
-            "Fall Crops": { items: [{ name: "Corn", season: "Sum/Fall", loc: "Grow Sum/Fall" }, { name: "Eggplant", season: "Fall", loc: "Grow in Fall" }, { name: "Pumpkin", season: "Fall", loc: "Grow in Fall" }, { name: "Yam", season: "Fall", loc: "Grow in Fall" }] },
-            "Quality Crops": { items: [{ name: "Parsnip", season: "Spring", quality: true, loc: "5x Gold Star" }, { name: "Melon", season: "Summer", quality: true, loc: "5x Gold Star" }, { name: "Pumpkin", season: "Fall", quality: true, loc: "5x Gold Star" }, { name: "Corn", season: "Sum/Fall", quality: true, loc: "5x Gold Star" }] },
-            "Animal Bundle": { items: [{ name: "Large Milk", season: "All", loc: "Cows" }, { name: "L. Brown Egg", season: "All", loc: "Brown Chickens" }, { name: "L. White Egg", season: "All", loc: "White Chickens" }, { name: "L. Goat Milk", season: "All", loc: "Goats" }, { name: "Wool", season: "All", loc: "Sheep/Rabbits" }, { name: "Duck Egg", season: "All", loc: "Ducks" }] },
-            "Artisan Bundle": { items: [{ name: "Truffle Oil", season: "All", loc: "Oil Maker" }, { name: "Cloth", season: "All", loc: "Loom" }, { name: "Goat Cheese", season: "All", loc: "Cheese Press" }, { name: "Cheese", season: "All", loc: "Cheese Press" }, { name: "Honey", season: "All", loc: "Bee House" }, { name: "Jelly", season: "All", loc: "Preserves Jar" }, { name: "Apple", season: "Fall", loc: "Fall Tree" }, { name: "Apricot", season: "Spring", loc: "Spring Tree" }, { name: "Orange", season: "Summer", loc: "Summer Tree" }, { name: "Peach", season: "Summer", loc: "Summer Tree" }, { name: "Pomegranate", season: "Fall", loc: "Fall Tree" }, { name: "Cherry", season: "Spring", loc: "Spring Tree" }] }
+            "Spring Crops": { items: [
+                { name: "Parsnip", season: "Spring", loc: "Grows in 4 Days. Fastest Spring crop." },
+                { name: "Green Bean", season: "Spring", loc: "Grows in 10 Days. Requires Trellis. Continues to produce." },
+                { name: "Cauliflower", season: "Spring", loc: "Grows in 12 Days. Can grow into a Giant Crop." },
+                { name: "Potato", season: "Spring", loc: "Grows in 6 Days. Chance for extra potatoes on harvest." }
+            ]},
+            "Summer Crops": { items: [
+                { name: "Tomato", season: "Summer", loc: "Grows in 11 Days. Produces every 4 days after." },
+                { name: "Hot Pepper", season: "Summer", loc: "Grows in 5 Days. Produces every 3 days after." },
+                { name: "Blueberry", season: "Summer", loc: "Grows in 13 Days. Produces many berries per harvest." },
+                { name: "Melon", season: "Summer", loc: "Grows in 12 Days. Can grow into a Giant Crop." }
+            ]},
+            "Fall Crops": { items: [
+                { name: "Corn", season: "Sum/Fall", loc: "Grows in 14 Days. Persists through Summer and Fall." },
+                { name: "Eggplant", season: "Fall", loc: "Grows in 7 Days. Produces every 5 days after." },
+                { name: "Pumpkin", season: "Fall", loc: "Grows in 13 Days. Can grow into a Giant Crop." },
+                { name: "Yam", season: "Fall", loc: "Grows in 10 Days. Use fertilizer for quality." }
+            ]},
+            "Quality Crops": { items: [
+                { name: "Parsnip", season: "Spring", quality: true, loc: "Need 5 Gold Stars. Use Basic/Quality Fertilizer." },
+                { name: "Melon", season: "Summer", quality: true, loc: "Need 5 Gold Stars. Plant many to ensure quality." },
+                { name: "Pumpkin", season: "Fall", quality: true, loc: "Need 5 Gold Stars. Use Quality Fertilizer." },
+                { name: "Corn", season: "Sum/Fall", quality: true, loc: "Need 5 Gold Stars. Harvest across two seasons." }
+            ]},
+            "Animal Bundle": { items: [
+                { name: "Large Milk", season: "All", loc: "From well-fed Cows." },
+                { name: "L. Brown Egg", season: "All", loc: "From well-fed Brown Chickens." },
+                { name: "L. White Egg", season: "All", loc: "From well-fed White Chickens." },
+                { name: "L. Goat Milk", season: "All", loc: "From well-fed Goats." },
+                { name: "Wool", season: "All", loc: "Sheep or Rabbits." },
+                { name: "Duck Egg", season: "All", loc: "From well-fed Ducks." }
+            ]},
+            "Artisan Bundle": { items: [
+                { name: "Truffle Oil", season: "All", loc: "Pigs find Truffles -> Oil Maker." },
+                { name: "Cloth", season: "All", loc: "Loom (Wool) or Recycling Machine." },
+                { name: "Goat Cheese", season: "All", loc: "Goat Milk -> Cheese Press." },
+                { name: "Cheese", season: "All", loc: "Cow Milk -> Cheese Press." },
+                { name: "Honey", season: "All", loc: "Bee House (except Winter)." },
+                { name: "Jelly", season: "All", loc: "Fruit -> Preserves Jar." },
+                { name: "Apple", season: "Fall", loc: "Apple Tree (Fall)." },
+                { name: "Peach", season: "Summer", loc: "Peach Tree (Summer)." },
+                { name: "Orange", season: "Summer", loc: "Orange Tree (Summer)." }
+            ]}
         },
         "Crafts": {
-            "Spring Foraging": { items: [{ name: "Wild Horseradish", season: "Spring", loc: "Spring Forage" }, { name: "Daffodil", season: "Spring", loc: "Spring Forage" }, { name: "Leek", season: "Spring", loc: "Spring Forage" }, { name: "Dandelion", season: "Spring", loc: "Spring Forage" }] },
-            "Summer Foraging": { items: [{ name: "Grape", season: "Summer", loc: "Summer Forage" }, { name: "Spice Berry", season: "Summer", loc: "Summer Forage" }, { name: "Sweet Pea", season: "Summer", loc: "Summer Forage" }] },
-            "Fall Foraging": { items: [{ name: "Common Mushroom", season: "Fall", loc: "Fall Forage" }, { name: "Wild Plum", season: "Fall", loc: "Fall Forage" }, { name: "Hazelnut", season: "Fall", loc: "Fall Forage" }, { name: "Blackberry", season: "Fall", loc: "Fall Forage" }] },
-            "Winter Foraging": { items: [{ name: "Winter Root", season: "Winter", loc: "Winter Forage" }, { name: "Crystal Fruit", season: "Winter", loc: "Winter Forage" }, { name: "Snow Yam", season: "Winter", loc: "Winter Forage" }, { name: "Crocus", season: "Winter", loc: "Winter Forage" }] },
-            "Exotic Foraging": { items: [{ name: "Coconut", season: "All", loc: "Desert" }, { name: "Cactus Fruit", season: "All", loc: "Desert" }, { name: "Cave Carrot", season: "All", loc: "Mines" }, { name: "Red Mushroom", season: "All", loc: "Mines/Secret Woods" }, { name: "Purple Mushroom", season: "All", loc: "Mines" }, { name: "Maple Syrup", season: "All", loc: "Tapper" }, { name: "Oak Resin", season: "All", loc: "Tapper" }, { name: "Pine Tar", season: "All", loc: "Tapper" }, { name: "Morel", season: "Spring", loc: "Secret Woods" }] },
-            "Construction": { items: [{ name: "Wood (99)", season: "All", loc: "Chop Trees" }, { name: "Wood (99)", season: "All", loc: "Chop Trees" }, { name: "Stone (99)", season: "All", loc: "Mining" }, { name: "Hardwood (10)", season: "All", loc: "Large Stumps" }] }
+            "Spring Foraging": { items: [
+                { name: "Wild Horseradish", season: "Spring", loc: "Wild on map." },
+                { name: "Daffodil", season: "Spring", loc: "Wild or Pierre's stall." },
+                { name: "Leek", season: "Spring", loc: "Wild on map." },
+                { name: "Dandelion", season: "Spring", loc: "Wild on map." }
+            ]},
+            "Construction": { items: [
+                { name: "Wood", season: "All", loc: "Chop trees. Need 198 total." },
+                { name: "Stone", season: "All", loc: "Mining. Need 99 total." },
+                { name: "Hardwood", season: "All", loc: "Large stumps. Need 10 total." }
+            ]},
+            "Exotic Foraging": { items: [
+                { name: "Coconut", season: "All", loc: "Desert forage." },
+                { name: "Cactus Fruit", season: "All", loc: "Desert forage." },
+                { name: "Cave Carrot", season: "All", loc: "Mines (Break crates)." },
+                { name: "Red Mushroom", season: "All", loc: "Mines or Secret Woods." },
+                { name: "Maple Syrup", season: "All", loc: "Tapper on Maple Tree." },
+                { name: "Oak Resin", season: "All", loc: "Tapper on Oak Tree." },
+                { name: "Pine Tar", season: "All", loc: "Tapper on Pine Tree." }
+            ]}
         },
         "Fish Tank": {
-            "River Fish": { items: [{ name: "Sun Fish", season: "Spr/Sum", loc: "River (Sunny)" }, { name: "Catfish", season: "Spr/Fall", loc: "River (Rainy)" }, { name: "Shad", season: "Spr/Sum/Fall", loc: "River (Rainy)" }, { name: "Tiger Trout", season: "Fall/Win", loc: "River (6am-7pm)" }] },
-            "Lake Fish": { items: [{ name: "Carp", season: "All", loc: "Lake" }, { name: "Largemouth Bass", season: "All", loc: "Lake" }, { name: "Bullhead", season: "All", loc: "Lake" }, { name: "Sturgeon", season: "Sum/Win", loc: "Lake" }] },
-            "Ocean Fish": { items: [{ name: "Sardine", season: "Spr/Fall/Win", loc: "Ocean" }, { name: "Tuna", season: "Sum/Win", loc: "Ocean" }, { name: "Red Snapper", season: "Sum/Fall", loc: "Ocean (Rainy)" }, { name: "Tilapia", season: "Sum/Fall", loc: "Ocean" }] },
-            "Night Fishing": { items: [{ name: "Walleye", season: "Fall", loc: "River/Lake (Rainy Night)" }, { name: "Bream", season: "All", loc: "River (Night)" }, { name: "Eel", season: "Spr/Fall", loc: "Ocean (Rainy Night)" }] },
-            "Crab Pot": { items: [{ name: "Lobster", season: "All", loc: "Crab Pot" }, { name: "Crayfish", season: "All", loc: "Crab Pot" }, { name: "Crab", season: "All", loc: "Crab Pot" }, { name: "Cockle", season: "All", loc: "Beach" }, { name: "Mussel", season: "All", loc: "Beach" }, { name: "Shrimp", season: "All", loc: "Crab Pot" }, { name: "Snail", season: "All", loc: "Crab Pot" }, { name: "Periwinkle", season: "All", loc: "Crab Pot" }, { name: "Oyster", season: "All", loc: "Beach" }, { name: "Clam", season: "All", loc: "Beach" }] },
-            "Specialty Fish": { items: [{ name: "Pufferfish", season: "Summer", loc: "Ocean" }, { name: "Ghostfish", season: "All", loc: "Mines" }, { name: "Sandfish", season: "All", loc: "Desert" }, { name: "Woodskip", season: "All", loc: "Secret Woods" }] }
+            "River Fish": { items: [
+                { name: "Sunfish", season: "Spr/Sum", loc: "River (6am-7pm). Sunny weather." },
+                { name: "Catfish", season: "Spr/Fall", loc: "River/Secret Woods. Rainy weather." },
+                { name: "Shad", season: "Spr/Sum/Fall", loc: "River. Rainy weather." },
+                { name: "Tiger Trout", season: "Fall/Win", loc: "River (6am-7pm)." }
+            ]},
+            "Lake Fish": { items: [
+                { name: "Carp", season: "All", loc: "Mountain Lake/Secret Woods." },
+                { name: "Largemouth Bass", season: "All", loc: "Mountain Lake (6am-7pm)." },
+                { name: "Bullhead", season: "All", loc: "Mountain Lake (Any time)." },
+                { name: "Sturgeon", season: "Sum/Win", loc: "Mountain Lake (6am-7pm)." }
+            ]},
+            "Ocean Fish": { items: [
+                { name: "Sardine", season: "Spr/Fall/Win", loc: "Ocean (6am-7pm)." },
+                { name: "Tuna", season: "Sum/Win", loc: "Ocean (6am-7pm)." },
+                { name: "Red Snapper", season: "Sum/Fall", loc: "Ocean (6am-7pm). Rainy weather." },
+                { name: "Tilapia", season: "Sum/Fall", loc: "Ocean (6am-2pm)." }
+            ]},
+            "Night Fishing": { items: [
+                { name: "Walleye", season: "Fall", loc: "River/Lake/Pond (12pm-2am). Rainy weather." },
+                { name: "Bream", season: "All", loc: "River (6pm-2am)." },
+                { name: "Eel", season: "Spr/Fall", loc: "Ocean (4pm-2am). Rainy weather." }
+            ]},
+            "Crab Pot": { items: [
+                { name: "Lobster", season: "All", loc: "Crab Pot (Ocean)." },
+                { name: "Crab", season: "All", loc: "Crab Pot (Ocean) or Mines Rock Crabs." },
+                { name: "Shrimp", season: "All", loc: "Crab Pot (Ocean)." },
+                { name: "Snail", season: "All", loc: "Crab Pot (Freshwater)." },
+                { name: "Clam", season: "All", loc: "Beach forage or Crab Pot." }
+            ]},
+            "Specialty Fish": { items: [
+                { name: "Pufferfish", season: "Summer", loc: "Ocean (12pm-4pm). Sunny weather." },
+                { name: "Ghostfish", season: "All", loc: "Mines (Ghost drop or fishing Level 20/60)." },
+                { name: "Sandfish", season: "All", loc: "Desert Pond (6am-8pm)." },
+                { name: "Woodskip", season: "All", loc: "Secret Woods Pond." }
+            ]}
         },
         "Boiler Room": {
-            "Blacksmith": { items: [{ name: "Copper Bar", season: "All", loc: "Smelt Ores" }, { name: "Iron Bar", season: "All", loc: "Smelt Ores" }, { name: "Gold Bar", season: "All", loc: "Smelt Ores" }] },
-            "Geologist": { items: [{ name: "Quartz", season: "All", loc: "Mines" }, { name: "Earth Crystal", season: "All", loc: "Mines" }, { name: "Frozen Tear", season: "All", loc: "Mines" }, { name: "Fire Quartz", season: "All", loc: "Mines" }] },
-            "Adventurers": { items: [{ name: "Slime (99)", season: "All", loc: "Mines" }, { name: "Batwing (10)", season: "All", loc: "Mines" }, { name: "Solar Essence", season: "All", loc: "Mines" }, { name: "Void Essence", season: "All", loc: "Mines" }] }
+            "Blacksmith": { items: [
+                { name: "Copper Bar", season: "All", loc: "Furnace (5 Copper Ore + 1 Coal)." },
+                { name: "Iron Bar", season: "All", loc: "Furnace (5 Iron Ore + 1 Coal)." },
+                { name: "Gold Bar", season: "All", loc: "Furnace (5 Gold Ore + 1 Coal)." }
+            ]},
+            "Geologist": { items: [
+                { name: "Quartz", season: "All", loc: "Mines (Any level)." },
+                { name: "Earth Crystal", season: "All", loc: "Mines (Levels 1-39)." },
+                { name: "Frozen Tear", season: "All", loc: "Mines (Levels 40-79)." },
+                { name: "Fire Quartz", season: "All", loc: "Mines (Levels 80-120)." }
+            ]},
+            "Adventurers": { items: [
+                { name: "Slime", season: "All", loc: "Need 99. Drop from Slimes." },
+                { name: "Batwing", season: "All", loc: "Need 10. Drop from Bats." },
+                { name: "Solar Essence", season: "All", loc: "Drop from Ghosts/Squid Kids/Metal Heads." },
+                { name: "Void Essence", season: "All", loc: "Drop from Shadow Brutes/Shadow Shamans." }
+            ]}
         },
         "Bulletin Board": {
-            "Chef": { items: [{ name: "Maple Syrup", season: "All", loc: "Tapper" }, { name: "Fiddlehead Fern", season: "Summer", loc: "Secret Woods" }, { name: "Truffle", season: "All", loc: "Pigs" }, { name: "Poppy", season: "Summer", loc: "Summer Crop" }, { name: "Maki Roll", season: "All", loc: "Cooking" }, { name: "Fried Egg", season: "All", loc: "Cooking" }] },
-            "Dye": { items: [{ name: "Red Mushroom", season: "All", loc: "Mines/Secret Woods" }, { name: "Sea Urchin", season: "All", loc: "Beach" }, { name: "Sunflower", season: "Sum/Fall", loc: "Summer/Fall Crop" }, { name: "Duck Feather", season: "All", loc: "Ducks" }, { name: "Aqua Marine", season: "All", loc: "Mines" }, { name: "Red Cabbage", season: "Summer", loc: "Summer Crop" }] },
-            "Field Research": { items: [{ name: "Purple Mushroom", season: "All", loc: "Mines" }, { name: "Nautilus Shell", season: "Winter", loc: "Beach (Winter)" }, { name: "Chub", season: "All", loc: "River/Lake" }, { name: "Frozen Geode", season: "All", loc: "Mines (Ice Floors)" }] },
-            "Fodder": { items: [{ name: "Wheat", season: "Sum/Fall", loc: "Sum/Fall Crop" }, { name: "Hay", season: "All", loc: "Silo/Marnie" }, { name: "Apple", season: "Fall", loc: "Fall Tree" }] },
-            "Enchanter": { items: [{ name: "Oak Resin", season: "All", loc: "Tapper" }, { name: "Wine", season: "All", loc: "Keg" }, { name: "Rabbit's Foot", season: "All", loc: "Rabbits" }, { name: "Pomegranate", season: "Fall", loc: "Fall Tree" }] }
+            "Chef": { items: [
+                { name: "Maple Syrup", season: "All", loc: "Tapper on Maple tree." },
+                { name: "Fiddlehead Fern", season: "Summer", loc: "Secret Woods forage." },
+                { name: "Truffle", season: "All", loc: "Pigs (Spring/Sum/Fall only)." },
+                { name: "Poppy", season: "Summer", loc: "Grows in 7 Days (Summer crop)." },
+                { name: "Maki Roll", season: "All", loc: "Cooking (Rice + Seaweed + Fish)." },
+                { name: "Fried Egg", season: "All", loc: "Cooking (1 Egg)." }
+            ]},
+            "Dye": { items: [
+                { name: "Red Mushroom", season: "All", loc: "Mines forage." },
+                { name: "Sea Urchin", season: "All", loc: "Beach forage (Bridge side)." },
+                { name: "Sunflower", season: "Sum/Fall", loc: "Grows in 8 Days." },
+                { name: "Duck Feather", season: "All", loc: "Happy Ducks drop these." },
+                { name: "Aquamarine", season: "All", loc: "Mining gems/nodes." },
+                { name: "Red Cabbage", season: "Summer", loc: "Grows in 9 Days (Year 2+ Pierre's)." }
+            ]},
+            "Field Research": { items: [
+                { name: "Purple Mushroom", season: "All", loc: "Mines forage (Lower levels)." },
+                { name: "Nautilus Shell", season: "Winter", loc: "Beach forage (Winter)." },
+                { name: "Chub", season: "All", loc: "Mountain Lake/River." },
+                { name: "Frozen Geode", season: "All", loc: "Mines (Levels 40-79)." }
+            ]},
+            "Fodder": { items: [
+                { name: "Wheat", season: "Sum/Fall", loc: "Grows in 4 Days. Need 10." },
+                { name: "Hay", season: "All", loc: "Scythe grass or buy from Marnie. Need 10." },
+                { name: "Apple", season: "Fall", loc: "Fall Tree. Need 3." }
+            ]},
+            "Enchanter": { items: [
+                { name: "Oak Resin", season: "All", loc: "Tapper on Oak tree." },
+                { name: "Wine", season: "All", loc: "Fruit in Keg." },
+                { name: "Rabbit's Foot", season: "All", loc: "Happy Rabbits drop these." },
+                { name: "Pomegranate", season: "Fall", loc: "Fall Tree." }
+            ]}
         },
         "Vault": {
-            "Donations": { items: [{ name: "2,500g", season: "All", loc: "Purchase" }, { name: "5,000g", season: "All", loc: "Purchase" }, { name: "10,000g", season: "All", loc: "Purchase" }, { name: "25,000g", season: "All", loc: "Purchase" }] }
+            "Donations": { items: [
+                { name: "2,500g", season: "All", loc: "Total cost for this bundle." },
+                { name: "5,000g", season: "All", loc: "Total cost for this bundle." },
+                { name: "10,000g", season: "All", loc: "Total cost for this bundle." },
+                { name: "25,000g", season: "All", loc: "Total cost for this bundle." }
+            ]}
         }
     };
 
-    // Global state variables
     let activeRoom = "Global";
     let activeSeason = "All";
 
-    /**
-     * SEASON FILTER LOGIC
-     * Toggles the season state and triggers a re-render of the items.
-     */
     function setSeason(season, btn) {
         activeSeason = season;
         document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
@@ -251,17 +377,12 @@
         renderActiveRoom();
     }
 
-    /**
-     * ROOM NAVIGATION LOGIC
-     * Switches the view between specific rooms or the global checklist.
-     */
     function changeRoom(room) {
         activeRoom = room;
         renderTabs();
         renderActiveRoom();
     }
 
-    // Generates the buttons at the top based on bundleData keys
     function renderTabs() {
         const container = document.getElementById('tab-container');
         container.innerHTML = `<button class="tab-btn ${activeRoom === 'Global' ? 'active' : ''}" onclick="changeRoom('Global')">ALL ROOMS</button>`;
@@ -270,10 +391,6 @@
         });
     }
 
-    /**
-     * MAIN RENDER ENGINE
-     * Dynamically creates the HTML cards and rows.
-     */
     function renderActiveRoom() {
         const container = document.getElementById('room-container');
         const hideDone = document.getElementById('hide-completed').checked;
@@ -287,22 +404,19 @@
             const list = card.querySelector('#master-list');
 
             Object.keys(bundleData).forEach(room => {
-                Object.keys(bundleData[room]).forEach(bundle => {
-                    bundleData[room][bundle].items.forEach(item => {
-                        const storageId = `sd-${item.name}-${room}`;
+                Object.keys(bundleData[room]).forEach(bundleName => {
+                    bundleData[room][bundleName].items.forEach(item => {
+                        const storageId = `sd-${room}-${bundleName}-${item.name}`;
                         const isDone = localStorage.getItem(storageId) === 'true';
-
-                        // Filtering logic for Global View
                         if (hideDone && isDone) return;
                         if (activeSeason === "All" || item.season.includes(activeSeason) || item.season === "All") {
-                            list.appendChild(createItemRow(item, room));
+                            list.appendChild(createItemRow(item, room, bundleName));
                         }
                     });
                 });
             });
             container.appendChild(card);
         } else {
-            // Render specific bundle cards for the selected room
             Object.keys(bundleData[activeRoom]).forEach(bundleName => {
                 const bundle = bundleData[activeRoom][bundleName];
                 const card = document.createElement('div');
@@ -314,12 +428,11 @@
 
                 const list = card.querySelector('.item-list');
                 bundle.items.forEach(item => {
-                    const storageId = `sd-${item.name}-${activeRoom}`;
+                    const storageId = `sd-${activeRoom}-${bundleName}-${item.name}`;
                     const isDone = localStorage.getItem(storageId) === 'true';
-
                     if (hideDone && isDone) return;
                     if (activeSeason === "All" || item.season.includes(activeSeason) || item.season === "All") {
-                        list.appendChild(createItemRow(item, activeRoom));
+                        list.appendChild(createItemRow(item, activeRoom, bundleName));
                     }
                 });
                 if (list.children.length > 0) container.appendChild(card);
@@ -328,46 +441,37 @@
         updateAllBars();
     }
 
-    /**
-     * ITEM ROW FACTORY
-     * Creates a row with an icon, checkbox, and hidden tooltip.
-     * Includes logic to track mouse position for the floating tooltip.
-     */
-    function createItemRow(item, roomLabel) {
+    function createItemRow(item, roomLabel, bundleName) {
         const row = document.createElement('div');
-        const storageId = `sd-${item.name}-${roomLabel}`;
+        const storageId = `sd-${roomLabel}-${bundleName}-${item.name}`;
         const isChecked = localStorage.getItem(storageId) === 'true';
 
         row.className = `item-row ${isChecked ? 'completed' : ''}`;
+        row.onclick = () => toggleProgress(storageId, row);
 
-        // Toggle when the whole row is clicked
-        row.onclick = (e) => toggleProgress(storageId, row);
-
-        // Logic to keep the tooltip attached to the mouse cursor
         row.onmousemove = (e) => {
             const tooltip = row.querySelector('.tooltip');
             tooltip.style.left = e.clientX + 'px';
             tooltip.style.top = e.clientY + 'px';
         };
 
+        const displayName = item.quality ? `5x ${item.name}` : item.name;
+
         row.innerHTML = `
             <input type="checkbox" ${isChecked ? 'checked' : ''} onclick="event.stopPropagation()" onchange="toggleProgress('${storageId}', this.parentElement)">
             <div class="item-icon">
                 <img src="${getIcon(item.name)}">
-                ${item.quality ? `<img src="${getIcon('2,500g')}" class="quality-star">` : ''}
+                ${item.quality ? `<img src="${getIcon('gold-star')}" class="quality-star">` : ''}
             </div>
-            <span>${item.name}</span>
+            <span>${displayName}</span>
             <span class="season-tag">${item.season}</span>
             <div class="tooltip">
-                <strong>📍 LOCATION:</strong><br>${item.loc}<br><br>
-                <strong>🏠 ROOM:</strong><br>${roomLabel}
+                <strong>📝 INFO:</strong><br>${item.loc}<br><br>
+                <strong>🏠 BUNDLE:</strong><br>${bundleName} (${roomLabel})
             </div>`;
         return row;
     }
 
-    /**
-     * Saves the checked state to LocalStorage so data isn't lost on refresh and remains checked on the page
-     */
     function toggleProgress(id, row) {
         const checkbox = row.querySelector('input');
         const newState = !checkbox.checked;
@@ -376,13 +480,11 @@
         row.classList.toggle('completed', newState);
         updateAllBars();
 
-        // If "Hide Completed" is on, remove the item after a short delay
         if (document.getElementById('hide-completed').checked && newState) {
             setTimeout(renderActiveRoom, 400);
         }
     }
 
-    // Calculates and updates progress bars based on checked inputs
     function updateAllBars() {
         document.querySelectorAll('.bundle-card').forEach(card => {
             const boxes = card.querySelectorAll('input[type="checkbox"]');
@@ -394,7 +496,6 @@
         });
     }
 
-    // Initial load
     window.onload = () => { renderTabs(); renderActiveRoom(); };
 </script>
 </body>
