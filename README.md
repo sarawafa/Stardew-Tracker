@@ -1,10 +1,10 @@
-# 🌿 Junimo Master Tracker
+#  Junimo Master Tracker
 
 A cozy, pixel-perfect web application designed to help Stardew Valley players keep track of their Community Center bundles. No more tabbing out to the wiki! See what you need, where to get it, and what's in season at a glance.
 
 ---
 
-## ✨ Features
+##  Features
 
 * **Pixel-Perfect UI:** Inspired by the authentic Stardew Valley menus, featuring the "Press Start 2P" font and classic gold-bordered panel aesthetic.
 * **Seasonal Filtering:** Toggle between Spring, Summer, Fall, and Winter to see current harvest goals.
@@ -24,7 +24,7 @@ A cozy, pixel-perfect web application designed to help Stardew Valley players ke
 
 ---
 
-## 🚀 Technical Details
+##  Technical Details
 
 * **Language:** HTML5, CSS3 (Grid/Flexbox), and Vanilla JavaScript.
 * **Data:** Sourced from the Stardew Valley Wiki.
