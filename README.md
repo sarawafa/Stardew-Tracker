@@ -1,30 +1,33 @@
-# Stardew-Tracker
+# 🌿 Junimo Master Tracker
 
-A high-fidelity, interactive web application for tracking Community Center progress in Stardew Valley. Designed as a "second-screen" companion, this tool allows players to manage bundles, filter by season, and save progress locally.
+A cozy, pixel-perfect web application designed to help Stardew Valley players keep track of their Community Center bundles. No more tabbing out to the wiki! See what you need, where to get it, and what's in season at a glance.
 
-# Features
-Pixel-Perfect UI: Built with a custom Stardew-inspired CSS framework, featuring the "Press Start 2P" typography and a responsive panel system.
+---
 
-Dynamic Seasonal Filtering: One-click toggles to show only the items available in the current in-game season (Spring, Summer, Fall, Winter).
+## ✨ Features
 
-Smart Image Engine: Programmatically fetches 100+ unique game assets from the official Stardew Wiki.
+* **Pixel-Perfect UI:** Inspired by the authentic Stardew Valley menus, featuring the "Press Start 2P" font and classic gold-bordered panel aesthetic.
+* **Seasonal Filtering:** Toggle between Spring, Summer, Fall, and Winter to see current harvest goals.
+* **Real-time Progress:** Visual progress bars for every room in the Community Center.
+* **Smart Tooltips:** Hover over any item to see exactly how to obtain it (e.g., "River, Rain, 6am-7pm").
+* **Persistent Storage:** Saves your progress locally in your browser so you never lose your place.
+* **Master Checklist:** A "Global" view to see every single required item in one master list.
 
-Persistent Progress: Uses localStorage to ensure your checklist remains saved even after closing the browser or refreshing the page.
+---
 
-Master Checklist View: A "Global" mode that aggregates every single required item into one searchable, filterable master list.
+## 🛠️ How to Use
 
-# Technical Deep Dive
-Overcoming CORS & Image Hosting
-One of the primary challenges was pulling high-resolution, pixelated assets directly from the Stardew Valley Wiki. Direct linking often results in CORS (Cross-Origin Resource Sharing) errors or broken paths.
+1. **Open the Tracker:** Open `index.html` in any modern web browser.
+2. **Filter by Season:** Use the seasonal "pills" at the top to narrow your focus.
+3. **Track Loot:** Click an item row to mark it as donated. The row will dim and the progress bar will update.
+4. **Hide Completed:** Toggle the "Hide Completed Items" checkbox to declutter your view.
 
-Solution: I engineered a getIcon() function that utilizes the weserv.nl image proxy. This allows the app to cache, resize, and serve Wiki assets reliably while maintaining the game's iconic "pixelated" rendering style.
+---
 
-📊 Data Architecture
-The project manages a complex nested object (bundleData) containing rooms, bundles, item locations, and seasonal availability.
+## 🚀 Technical Details
 
-Logic: The app dynamically generates UI components by iterating through this data, allowing for easy updates if game patches change item requirements.
+* **Language:** HTML5, CSS3 (Grid/Flexbox), and Vanilla JavaScript.
+* **Data:** Sourced from the Stardew Valley Wiki.
+* **Storage:** Uses `localStorage` for zero-database persistence.
 
-Quality Logic: Special handling was implemented for "Quality" requirements (e.g., 5x Gold Star Melons), including a custom overlay system for the gold quality star icon.
-
-📱 Responsive Design
-The UI uses CSS Grid with auto-fit and minmax properties. This ensures the tracker looks great on a 4K monitor but remains fully functional on a smartphone—ideal for players who keep their phone on their desk while playing on a PC or console.
+*Happy farming, and may the Spirits be very happy today!* 🌟
